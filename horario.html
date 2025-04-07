@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Horas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background: #f4f4f4;
+      max-width: 500px;
+      margin: auto;
+    }
+    h2 {
+      color: #333;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px 5px;
+      width: 90%;
+      font-size: 16px;
+    }
+    button {
+      width: 45%;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #respuesta {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Registro de Horas</h2>
+
+  <input type="text" id="employee" placeholder="Nombre o ID del empleado">
+
+  <div>
+    <button onclick="registrar('entrada')">Registrar Entrada</button>
+    <button onclick="registrar('salida')">Registrar Salida</button>
+  </div>
+
+  <p id="respuesta"></p>
+
+  <script>
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxuHrY9vG23POsx91MtAre1zxEGC0MsmOXkUs3e7XJQsViWOzET9t-5j6TRwKa8Y5Kb3Q/exec"; // ← Pega tu URL aquí
+
+    function registrar(tipo) {
+      const nombre = document.getElementById('employee').value.trim();
+      const respuesta = document.getElementById('respuesta');
+
+      if (!nombre) {
+        respuesta.innerText = "Por favor ingresa el nombre o ID del empleado.";
+        respuesta.style.color = "red";
+        return;
+      }
+
+      const ahora = new Date();
+      const datos = {
+        nombre: nombre,
+        fecha: ahora.toLocaleDateString(),
+        hora: ahora.toLocaleTimeString(),
+        tipo: tipo
+      };
+
+      fetch(URL_SCRIPT, {
+        method: 'POST',
+        body: JSON.stringify(datos),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          respuesta.innerText = `Registro ${tipo} exitoso ✅`;
+          respuesta.style.color = "green";
+          document.getElementById('employee').value = '';
+        } else {
+          respuesta.innerText = "Error al registrar. ❌";
+          respuesta.style.color = "red";
+        }
+      })
+      .catch(err => {
+        console.error("Error:", err);
+        respuesta.innerText = "Error de conexión con Google Sheets ❌";
+        respuesta.style.color = "red";
+      });
+    }
+  </script>
+
+</body>
+</html>
